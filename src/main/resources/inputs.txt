@@ -1,0 +1,7 @@
+N 10000
+Lx 0.24
+Ly 0.29
+RanY 0.01
+rc 0.02
+pMass 0.0015
+pVModule 0.01
