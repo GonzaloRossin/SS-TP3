@@ -19,8 +19,9 @@ public class SimulationHandler {
 
     private int particleCount;
     private final List<List<Particle>> cells;
-
     List<Particle> particlesList = new ArrayList<>();
+
+    private final List<Event> events = new ArrayList<>();
 
     public SimulationHandler() {
         // Default

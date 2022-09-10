@@ -45,8 +45,18 @@ public class Particle {
         this.ry = y;
     }
 
-    public double collidesY() {
-        return 0.1;
+    public float collidesY(float Ly) {
+        if (vy > 0) {
+            return (Ly - radius - ry) / vy;
+        }
+        return (radius - ry) / vy;
+    }
+
+    public float collidesX(float Lx) {
+        if (vx > 0) {
+            return (Lx - radius - rx) / vx;
+        }
+        return (radius - rx) / vx;
     }
 
     public void setCellCoords(int Mx, int My, float Lx, float Ly) {
