@@ -27,6 +27,8 @@ public class App
         App.readTxt(simulationHandler, scanner);
 
         simulationHandler.simInit();
+
+        simulationHandler.run();
     }
 
     public static void readTxt(SimulationHandler simulationHandler, Scanner scanner) {
@@ -59,6 +61,12 @@ public class App
             String in = scanner.next();
             simulationHandler.setRc(Float.parseFloat(scanner.next()));
             System.out.println(in + " " + simulationHandler.getRc());
+        }
+        // Read pRadius value
+        if (scanner.hasNextLine()) {
+            String in = scanner.next();
+            simulationHandler.setPRadius(Float.parseFloat(scanner.next()));
+            System.out.println(in + " " + simulationHandler.getPRadius());
         }
         // Read pMass value
         if (scanner.hasNextLine()) {

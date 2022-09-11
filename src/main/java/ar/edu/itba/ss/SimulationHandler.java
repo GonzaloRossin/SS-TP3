@@ -1,14 +1,13 @@
 package ar.edu.itba.ss;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class SimulationHandler {
     private int N;
     private float rc;
-    private float pMass;
+    private float pRadius;
     private float pVModule;
+    private float pMass;
 
     private float Lx;
     private float Ly;
@@ -21,7 +20,7 @@ public class SimulationHandler {
     private final List<List<Particle>> cells;
     List<Particle> particlesList = new ArrayList<>();
 
-    private final List<Event> events = new ArrayList<>();
+    private final SortedSet<Event> events = new TreeSet<>();
 
     public SimulationHandler() {
         // Default
@@ -38,12 +37,12 @@ public class SimulationHandler {
     public void generateParticles() {
         Random r = new Random(0);
         for (int i = 0; i < N; i++) {
-            float rx = 0 + r.nextFloat() * Lx;
-            float ry = 0 + r.nextFloat() * Ly;
+            float rx = pRadius + r.nextFloat() * (Lx - 2 * pRadius);
+            float ry = pRadius + r.nextFloat() * (Ly - 2 * pRadius);
             double ang = 0 + r.nextFloat() * 2 * Math.PI;
-            float vx = Math.round(Math.cos(ang) * getPVModule());
-            float vy = Math.round(Math.sin(ang) * getPVModule());
-            particlesList.add(new Particle(rc, 0.1f, rx, ry, particleCount++, vx, vy, getPMass()));
+            float vx = (float) (Math.cos(ang) * getPVModule());
+            float vy = (float) (Math.sin(ang) * getPVModule());
+            particlesList.add(new Particle(rc, getPRadius(), rx, ry, particleCount++, vx, vy, getPMass()));
         }
     }
 
@@ -96,6 +95,19 @@ public class SimulationHandler {
             }
         }
     }
+
+    public void run() {
+        cellIndexMethod();
+        for (Particle p : getParticlesList()) {
+            events.add(new Event(p.collidesY(getLy()), p, null));
+            events.add(new Event(p.collidesX(getLx()), null, p));
+            for (Particle neigh : p.getNeighbours()) {
+                events.add(new Event(p.collides(neigh), p, neigh));
+            }
+        }
+        System.out.println("Finished");
+    }
+
 
     private static class NeighbourCells {
         int xStart, xEnd, yStart, yEnd;
@@ -189,7 +201,7 @@ public class SimulationHandler {
     }
 
     public float getPMass() {
-        return pMass;
+        return pRadius;
     }
 
     public void setPMass(float pMass) {
@@ -202,5 +214,13 @@ public class SimulationHandler {
 
     public void setPVModule(float pVModule) {
         this.pVModule = pVModule;
+    }
+
+    public float getPRadius() {
+        return pRadius;
+    }
+
+    public void setPRadius(float pRadius) {
+        this.pRadius = pRadius;
     }
 }

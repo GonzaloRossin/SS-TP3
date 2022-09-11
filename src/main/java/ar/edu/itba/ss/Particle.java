@@ -1,5 +1,6 @@
 package ar.edu.itba.ss;
 
+import javax.naming.NameNotFoundException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -8,10 +9,8 @@ import java.util.Set;
 public class Particle {
     private float rc;
     private float radius;
-    private float rx;
-    private float ry;
-    private float vx;
-    private float vy;
+    private Vector2 r;
+    private Vector2 v;
     private float mass;
     private int id;
     private int cellX;
@@ -22,8 +21,7 @@ public class Particle {
     public Particle(float rc, float radius, float x, float y, int id) {
         this.rc = rc;
         this.radius = radius;
-        this.rx = x;
-        this.ry = y;
+        this.r = new Vector2(x, y);
         this.id = id;
         neighbours = new HashSet<>();
     }
@@ -31,37 +29,52 @@ public class Particle {
     public Particle(float rc, float radius, float rx, float ry, int id, float vx, float vy, float mass) {
         this.rc = rc;
         this.radius = radius;
-        this.rx = rx;
-        this.ry = ry;
-        this.vx = vx;
-        this.vy = vy;
+        this.r = new Vector2(rx, ry);
+        this.v = new Vector2(vx, vy);
         this.id = id;
         this.mass = mass;
         neighbours = new HashSet<>();
     }
 
     Particle(float x, float y) {
-        this.rx = x;
-        this.ry = y;
+        this.r = new Vector2(x, y);
     }
 
     public float collidesY(float Ly) {
-        if (vy > 0) {
-            return (Ly - radius - ry) / vy;
+        if (v.getY() > 0) {
+            return (Ly - radius - r.getY()) / v.getY();
         }
-        return (radius - ry) / vy;
+        return (radius - r.getY()) / v.getY();
     }
 
     public float collidesX(float Lx) {
-        if (vx > 0) {
-            return (Lx - radius - rx) / vx;
+        if (v.getX() > 0) {
+            return (Lx - radius - r.getX()) / v.getX();
         }
-        return (radius - rx) / vx;
+        return (radius - r.getX()) / v.getX();
+    }
+
+    public float collides(Particle neigh) {
+        Vector2 dR = getR().substract(neigh.getR());
+        Vector2 dV = getV().substract(neigh.getV());
+        float dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
+        if (dVdR >= 0) {
+            return Float.NaN;
+        }
+        float dRdR = dR.innerProduct(dR);
+        float dVdV = dV.innerProduct(dV);
+        float sigma = getRadius() + neigh.getRadius();
+        float d = (float) Math.pow(dVdR, 2) - (dVdV) * (dRdR - (float) Math.pow(sigma, 2));
+
+        if (d < 0 ) {
+            return Float.NaN;
+        }
+        return (-dVdR + (float) Math.sqrt(d)) / dVdV;
     }
 
     public void setCellCoords(int Mx, int My, float Lx, float Ly) {
-        int xOffset = (int)Math.floor((getRx() * Mx) / Lx);
-        int yOffset = (int)Math.floor((getRy() * My) / Ly);
+        int xOffset = (int)Math.floor((getR().getX() * Mx) / Lx);
+        int yOffset = (int)Math.floor((getR().getY() * My) / Ly);
 
         setCellX(xOffset);
         setCellY(yOffset);
@@ -78,13 +91,14 @@ public class Particle {
             }
         }
     }
+
     public boolean isInRange(Particle p) {
-        return Math.sqrt(Math.pow(p.getRx() - getRx(), 2) + Math.pow(p.getRy() - getRy(), 2)) < getRc() + getRadius() + p.getRadius();
+        return Math.sqrt(Math.pow(p.getR().getX() - getR().getX(), 2) + Math.pow(p.getR().getY() - getR().getY(), 2)) < getRc() + getRadius() + p.getRadius();
     }
 
     @Override
     public String toString() {
-        return String.format("Id %d pos[%.2f, %.2f] rc %.2f cellX %d cellY %d", id, rx, ry, rc, cellX, cellY);
+        return String.format("Id %d pos[%.2f, %.2f] rc %.2f cellX %d cellY %d", id, r.getX(), r.getY(), rc, cellX, cellY);
     }
 
     public String strNeighbours() {
@@ -97,6 +111,14 @@ public class Particle {
 
     public Set<Particle> getNeighbours() {
         return neighbours;
+    }
+
+    public Vector2 getR() {
+        return r;
+    }
+
+    public Vector2 getV() {
+        return v;
     }
 
     public void setNeighbours(Set<Particle> neighbours) {
@@ -117,22 +139,6 @@ public class Particle {
 
     public void setRadius(float radius) {
         this.radius = radius;
-    }
-
-    public float getRx() {
-        return rx;
-    }
-
-    public void setRx(float rx) {
-        this.rx = rx;
-    }
-
-    public float getRy() {
-        return ry;
-    }
-
-    public void setRy(float ry) {
-        this.ry = ry;
     }
 
     public int getId() {
@@ -172,19 +178,4 @@ public class Particle {
         return Objects.hash(id);
     }
 
-    public float getVx() {
-        return vx;
-    }
-
-    public void setVx(float vx) {
-        this.vx = vx;
-    }
-
-    public float getVy() {
-        return vy;
-    }
-
-    public void setVy(float vy) {
-        this.vy = vy;
-    }
 }
