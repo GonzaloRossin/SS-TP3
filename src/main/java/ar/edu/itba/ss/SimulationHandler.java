@@ -15,6 +15,7 @@ public class SimulationHandler {
     private int My;
 
     private float ranY;
+    private int t;
 
     private int particleCount;
     private final List<List<Particle>> cells;
@@ -46,10 +47,12 @@ public class SimulationHandler {
         }
     }
 
-    public void printParticles() {
+    public String printParticles() {
+        StringBuilder sb = new StringBuilder(particlesList.size() + "\n\n");
         for (Particle particle : particlesList) {
-            System.out.println(particle);
+            sb.append(String.format("%f %f %f\n", particle.getR().getX(), particle.getR().getY(), 0.0f));
         }
+        return sb.toString();
     }
 
     public void calculateM() {
@@ -96,18 +99,39 @@ public class SimulationHandler {
         }
     }
 
-    public void run() {
-        cellIndexMethod();
-        for (Particle p : getParticlesList()) {
-            events.add(new Event(p.collidesY(getLy()), p, null));
-            events.add(new Event(p.collidesX(getLx()), null, p));
-            for (Particle neigh : p.getNeighbours()) {
-                events.add(new Event(p.collides(neigh), p, neigh));
-            }
-        }
-        System.out.println("Finished");
+    public boolean endCondition() {
+        return t == 250;
     }
 
+    public boolean iterate() {
+        Event event = events.first();
+        boolean isValid = event.isValidEvent();
+        if (isValid) {
+            // Update all particles positions
+            for (Particle p : particlesList) {
+                p.updateR(event.getT());
+            }
+            // Update all events timers
+            for (Event e : events) {
+                e.setT(e.getT() - event.getT());
+            }
+            // Update involved particles velocities
+            event.bounce();
+        }
+        t++;
+        events.remove(event);
+        return isValid;
+    }
+
+    public void eventSetup() {
+        for (Particle p : getParticlesList()) {
+            events.add(new Event(p.collidesY(getLy()), p, EventType.HORIZONTAL_WALL));
+            events.add(new Event(p.collidesX(getLx()), p, EventType.VERTICAL_WALL));
+            for (Particle neigh : p.getNeighbours()) {
+                events.add(new Event(p.collides(neigh), p, neigh, EventType.PARTICLES));
+            }
+        }
+    }
 
     private static class NeighbourCells {
         int xStart, xEnd, yStart, yEnd;

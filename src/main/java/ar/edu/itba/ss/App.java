@@ -1,6 +1,6 @@
 package ar.edu.itba.ss;
 
-import java.io.InputStream;
+import java.io.*;
 import java.util.Scanner;
 
 /**
@@ -28,7 +28,35 @@ public class App
 
         simulationHandler.simInit();
 
-        simulationHandler.run();
+        PrintWriter pw = openFile("output/anim/animation.xyz");
+        writeToFile(pw, simulationHandler.printParticles());
+
+        simulationHandler.cellIndexMethod();
+        simulationHandler.eventSetup();
+        while (!simulationHandler.endCondition()) {
+            if(simulationHandler.iterate()) {
+                writeToFile(pw, simulationHandler.printParticles());
+            }
+        }
+        pw.close();
+        System.out.println("Finished");
+    }
+
+    private static PrintWriter openFile(String filepath) {
+        try {
+            new File(filepath).delete();
+            FileWriter fw = new FileWriter(filepath, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            return new PrintWriter(bw);
+        } catch (Exception e) {
+            System.out.println("Failed");
+        }
+        return null;
+    }
+
+    private static void writeToFile(PrintWriter pw, String toWrite) {
+        pw.print(toWrite);
+        pw.flush();
     }
 
     public static void readTxt(SimulationHandler simulationHandler, Scanner scanner) {

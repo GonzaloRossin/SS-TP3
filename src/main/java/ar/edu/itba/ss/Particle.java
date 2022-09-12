@@ -15,6 +15,7 @@ public class Particle {
     private int id;
     private int cellX;
     private int cellY;
+    private int collisions;
 
     private Set<Particle> neighbours;
 
@@ -70,6 +71,41 @@ public class Particle {
             return Float.NaN;
         }
         return (-dVdR + (float) Math.sqrt(d)) / dVdV;
+    }
+
+    public void bounceX() {
+        v.setX(-v.getX());
+        incrementCollision();
+    }
+    public void bounceY() {
+        v.setY(-v.getY());
+        incrementCollision();
+    }
+
+    public float getMass() {
+        return mass;
+    }
+
+    public void incrementCollision() {
+        collisions++;
+    }
+
+    public void bounce(Particle b) {
+        Vector2 dR = getR().substract(b.getR());
+        Vector2 dV = getV().substract(b.getV());
+        float dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
+        float sigma = getRadius() + b.getRadius();
+        float J = (2 * getMass() * b.getMass() * (dVdR)) / sigma * (getMass() * b.getMass());
+        float Jx = J * dR.getX() / sigma;
+        float Jy = J * dR.getY() / sigma;
+
+        v.setX(v.getX() + Jx / getMass());
+        v.setY(v.getY() + Jy / getMass());
+        incrementCollision();
+
+        b.getV().setX(b.getV().getX() + Jx / b.getMass());
+        b.getV().setY(b.getV().getY() + Jy / b.getMass());
+        b.incrementCollision();
     }
 
     public void setCellCoords(int Mx, int My, float Lx, float Ly) {
@@ -178,4 +214,12 @@ public class Particle {
         return Objects.hash(id);
     }
 
+    public int getCollisions() {
+        return collisions;
+    }
+
+    public void updateR(float t) {
+        r.setX(getR().getX() + getV().getX() * t);
+        r.setY(getR().getY() + getV().getY() * t);
+    }
 }
