@@ -13,6 +13,8 @@ public class Event implements Comparable<Event> {
     public Event(float t, Particle a, Particle b, EventType eventType) {
         this.t = t;
         this.a = a;
+        this.aCollisions = a.getCollisions();
+        this.bCollisions = b.getCollisions();
         this.b = b;
         this.eventType = eventType;
     }
@@ -21,21 +23,17 @@ public class Event implements Comparable<Event> {
         this.t = t;
         this.a = a;
         this.eventType = eventType;
+        this.aCollisions = a.getCollisions();
     }
 
     public boolean isValidEvent() {
-        switch (eventType) {
-            case PARTICLES: {
-                return a.getCollisions() == aCollisions && b.getCollisions() == bCollisions;
-            }
-            case HORIZONTAL_WALL: {
-                return a.getCollisions() == aCollisions;
-            }
-            case VERTICAL_WALL: {
-                return a.getCollisions() == bCollisions;
-            }
-            default:
-                return false;
+        if (Float.isInfinite(t)) {
+            return false;
+        }
+        if (eventType == EventType.PARTICLES) {
+            return a.getCollisions() == aCollisions && b.getCollisions() == bCollisions;
+        } else {
+            return a.getCollisions() == aCollisions;
         }
     }
 
@@ -46,11 +44,11 @@ public class Event implements Comparable<Event> {
                 break;
             }
             case HORIZONTAL_WALL: {
-                a.bounceX();
+                a.bounceY();
                 break;
             }
             case VERTICAL_WALL: {
-                a.bounceY();
+                a.bounceX();
                 break;
             }
         }
@@ -96,5 +94,9 @@ public class Event implements Comparable<Event> {
     @Override
     public int hashCode() {
         return Objects.hash(t);
+    }
+
+    public EventType getEventType() {
+        return eventType;
     }
 }

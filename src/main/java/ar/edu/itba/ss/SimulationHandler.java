@@ -32,9 +32,11 @@ public class SimulationHandler {
     }
 
     public void simInit() {
-        generateParticles();
+//        generateParticles();
+        generateDummyParticles();
         calculateM();
     }
+
     public void generateParticles() {
         Random r = new Random(0);
         for (int i = 0; i < N; i++) {
@@ -47,10 +49,14 @@ public class SimulationHandler {
         }
     }
 
+    public void generateDummyParticles() {
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/2, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
+    }
+
     public String printParticles() {
-        StringBuilder sb = new StringBuilder(particlesList.size() + "\n\n");
+        StringBuilder sb = new StringBuilder();
         for (Particle particle : particlesList) {
-            sb.append(String.format("%f %f %f\n", particle.getR().getX(), particle.getR().getY(), 0.0f));
+            sb.append(String.format("%f %f\n", particle.getR().getX(), particle.getR().getY(), 0.0f));
         }
         return sb.toString();
     }
@@ -88,13 +94,18 @@ public class SimulationHandler {
     public void cellIndexMethod() {
         List<List<Particle>> cells = cellIndexMethodSetup();
         for (Particle p : getParticlesList()) {
-            // Sets an object with the corresponding xy indexes
-            NeighbourCells nc = new NeighbourCells(p, Mx, My);
+            calculateNeighbours(p);
+        }
+    }
 
-            for (int i = nc.xStart; i < nc.xEnd; i++) {
-                for (int j = nc.yStart; j < nc.yEnd; j++) {
-                    p.checkNeighbours(cells.get(i + j * Mx));
-                }
+    public void calculateNeighbours(Particle p) {
+        // Sets an object with the corresponding xy indexes
+        NeighbourCells nc = new NeighbourCells(p, Mx, My);
+        p.emptyNeighbours();
+
+        for (int i = nc.xStart; i < nc.xEnd; i++) {
+            for (int j = nc.yStart; j < nc.yEnd; j++) {
+                p.checkNeighbours(cells.get(i + j * Mx));
             }
         }
     }
@@ -117,19 +128,33 @@ public class SimulationHandler {
             }
             // Update involved particles velocities
             event.bounce();
+
+            // Add events for involved particles
+            if (event.getEventType() == EventType.PARTICLES) {
+                calculateNeighbours(event.getB());
+                addEvents(event.getB());
+            }
+            calculateNeighbours(event.getA());
+            addEvents(event.getA());
+            t++;
+
         }
-        t++;
         events.remove(event);
         return isValid;
     }
 
     public void eventSetup() {
         for (Particle p : getParticlesList()) {
-            events.add(new Event(p.collidesY(getLy()), p, EventType.HORIZONTAL_WALL));
-            events.add(new Event(p.collidesX(getLx()), p, EventType.VERTICAL_WALL));
-            for (Particle neigh : p.getNeighbours()) {
-                events.add(new Event(p.collides(neigh), p, neigh, EventType.PARTICLES));
-            }
+            addEvents(p);
+        }
+    }
+
+    public void addEvents(Particle p) {
+        events.add(new Event(p.collidesY(getLy()), p, EventType.HORIZONTAL_WALL));
+        events.add(new Event(p.collidesX(getLx()), p, EventType.VERTICAL_WALL));
+
+        for (Particle neigh : p.getNeighbours()) {
+            events.add(new Event(p.collides(neigh), p, neigh, EventType.PARTICLES));
         }
     }
 
@@ -225,7 +250,7 @@ public class SimulationHandler {
     }
 
     public float getPMass() {
-        return pRadius;
+        return pMass;
     }
 
     public void setPMass(float pMass) {

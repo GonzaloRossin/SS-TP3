@@ -120,12 +120,16 @@ public class Particle {
         // Calculate distance for each neighbor and add to set, check if not already calculated distance
         for (Particle p : particles) {
             if (!p.equals(this)) {
-                if (!neighbours.contains(p) && isInRange(p)) {
+                if (!neighbours.contains(p)) {
                     neighbours.add(p);
                     p.getNeighbours().add(this);
                 }
             }
         }
+    }
+
+    public void emptyNeighbours() {
+        neighbours.clear();
     }
 
     public boolean isInRange(Particle p) {

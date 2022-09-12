@@ -29,18 +29,38 @@ public class App
         simulationHandler.simInit();
 
         PrintWriter pw = openFile("output/anim/animation.xyz");
-        writeToFile(pw, simulationHandler.printParticles());
+
+        // Particle contour
+        int xAmount = (int) (simulationHandler.getLx() / simulationHandler.getPRadius() / 2);
+        int yAmount = (int) (simulationHandler.getLy() / simulationHandler.getPRadius() / 2);
+        int size = simulationHandler.getParticlesList().size() + xAmount * 2 + yAmount * 2;
+        StringBuilder sb = new StringBuilder(size + "\n\n");
+        StringBuilder walls = new StringBuilder();
+
+        for (int i = 0; i < xAmount; i++) {
+            walls.append(String.format("%f %f\n", i * simulationHandler.getPRadius() * 2, 0.0f));
+            walls.append(String.format("%f %f\n", i * simulationHandler.getPRadius() * 2, simulationHandler.getLy()));
+        }
+        for (int i = 0; i < yAmount; i++) {
+            walls.append(String.format("%f %f\n", 0.0f, i * simulationHandler.getPRadius() * 2));
+            walls.append(String.format("%f %f\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
+        }
+        sb.append(simulationHandler.printParticles());
+        writeToFile(pw, sb.append(walls).toString());
 
         simulationHandler.cellIndexMethod();
         simulationHandler.eventSetup();
         while (!simulationHandler.endCondition()) {
             if(simulationHandler.iterate()) {
-                writeToFile(pw, simulationHandler.printParticles());
+                StringBuilder s = new StringBuilder(size + "\n\n");
+                s.append(walls);
+                writeToFile(pw, s.append(simulationHandler.printParticles()).toString());
             }
         }
         pw.close();
         System.out.println("Finished");
     }
+
 
     private static PrintWriter openFile(String filepath) {
         try {
