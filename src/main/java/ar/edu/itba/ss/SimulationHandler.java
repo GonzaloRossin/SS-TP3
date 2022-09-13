@@ -50,7 +50,8 @@ public class SimulationHandler {
     }
 
     public void generateDummyParticles() {
-        particlesList.add(new Particle(rc, getPRadius(), getLx()/2, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/2 - 0.01f, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/2 + 0.01f, getLy()/2, particleCount++, -getPVModule(), 0, getPMass()));
     }
 
     public String printParticles() {

@@ -99,8 +99,8 @@ public class Particle {
         float Jx = J * dR.getX() / sigma;
         float Jy = J * dR.getY() / sigma;
 
-        v.setX(v.getX() + Jx / getMass());
-        v.setY(v.getY() + Jy / getMass());
+        v.setX(v.getX() - Jx / getMass());
+        v.setY(v.getY() - Jy / getMass());
         incrementCollision();
 
         b.getV().setX(b.getV().getX() + Jx / b.getMass());

@@ -80,6 +80,9 @@ public class Event implements Comparable<Event> {
 
     @Override
     public int compareTo(Event o) {
+        if (Float.compare(t, o.getT()) == 0) {
+            return Integer.compare(a.getId(), o.getA().getId());
+        }
         return Float.compare(t, o.getT());
     }
 
@@ -88,12 +91,12 @@ public class Event implements Comparable<Event> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Float.compare(event.t, t) == 0;
+        return Float.compare(event.t, t) == 0 && a.equals(event.a) && eventType == event.eventType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(t);
+        return Objects.hash(t, a, eventType);
     }
 
     public EventType getEventType() {
