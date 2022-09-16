@@ -1,14 +1,14 @@
 package ar.edu.itba.ss;
 
 public class Vector2 {
-    private float x,y;
+    private double x,y;
 
-    public Vector2(float x, float y) {
+    public Vector2(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public float innerProduct(Vector2 v) {
+    public double innerProduct(Vector2 v) {
         return this.x * v.getX() + this.y * v.getY();
     }
 
@@ -16,19 +16,19 @@ public class Vector2 {
         return new Vector2(v.getX() - getX(), v.getY() - getY());
     }
 
-    public float getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(float x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public float getY() {
+    public double getY() {
         return y;
     }
 
-    public void setY(float y) {
+    public void setY(double y) {
         this.y = y;
     }
 }

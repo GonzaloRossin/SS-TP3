@@ -89,43 +89,43 @@ public class App
         // Read Lx value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setLx(Float.parseFloat(scanner.next()));
+            simulationHandler.setLx(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getLx());
         }
         // Read Ly value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setLy(Float.parseFloat(scanner.next()));
+            simulationHandler.setLy(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getLy());
         }
         // Read RanY value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setRanY(Float.parseFloat(scanner.next()));
+            simulationHandler.setRanY(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getRanY());
         }
         // Read rc value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setRc(Float.parseFloat(scanner.next()));
+            simulationHandler.setRc(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getRc());
         }
         // Read pRadius value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setPRadius(Float.parseFloat(scanner.next()));
+            simulationHandler.setPRadius(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getPRadius());
         }
         // Read pMass value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setPMass(Float.parseFloat(scanner.next()));
+            simulationHandler.setPMass(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getPMass());
         }
         // Read pVModule value
         if (scanner.hasNextLine()) {
             String in = scanner.next();
-            simulationHandler.setPVModule(Float.parseFloat(scanner.next()));
+            simulationHandler.setPVModule(Double.parseDouble(scanner.next()));
             System.out.println(in + " " + simulationHandler.getPVModule());
         }
     }

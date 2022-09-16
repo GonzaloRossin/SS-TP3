@@ -7,11 +7,11 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Particle {
-    private float rc;
-    private float radius;
+    private double rc;
+    private double radius;
     private Vector2 r;
     private Vector2 v;
-    private float mass;
+    private double mass;
     private int id;
     private int cellX;
     private int cellY;
@@ -19,7 +19,7 @@ public class Particle {
 
     private Set<Particle> neighbours;
 
-    public Particle(float rc, float radius, float x, float y, int id) {
+    public Particle(double rc, double radius, double x, double y, int id) {
         this.rc = rc;
         this.radius = radius;
         this.r = new Vector2(x, y);
@@ -27,7 +27,7 @@ public class Particle {
         neighbours = new HashSet<>();
     }
 
-    public Particle(float rc, float radius, float rx, float ry, int id, float vx, float vy, float mass) {
+    public Particle(double rc, double radius, double rx, double ry, int id, double vx, double vy, double mass) {
         this.rc = rc;
         this.radius = radius;
         this.r = new Vector2(rx, ry);
@@ -37,40 +37,40 @@ public class Particle {
         neighbours = new HashSet<>();
     }
 
-    Particle(float x, float y) {
+    Particle(double x, double y) {
         this.r = new Vector2(x, y);
     }
 
-    public float collidesY(float Ly) {
+    public double collidesY(double Ly) {
         if (v.getY() > 0) {
-            return (Ly - radius - r.getY()) / v.getY();
+            return ((Ly - radius - r.getY()) / v.getY()) * 0.99;
         }
-        return (radius - r.getY()) / v.getY();
+        return ((radius - r.getY()) / v.getY()) * 0.99;
     }
 
-    public float collidesX(float Lx) {
+    public double collidesX(double Lx) {
         if (v.getX() > 0) {
-            return (Lx - radius - r.getX()) / v.getX();
+            return ((Lx - radius - r.getX()) / v.getX()) * 0.99;
         }
-        return (radius - r.getX()) / v.getX();
+        return ((radius - r.getX()) / v.getX()) * 0.99;
     }
 
-    public float collides(Particle neigh) {
+    public double collides(Particle neigh) {
         Vector2 dR = getR().substract(neigh.getR());
         Vector2 dV = getV().substract(neigh.getV());
-        float dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
+        double dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
         if (dVdR >= 0) {
-            return Float.NaN;
+            return Double.NaN;
         }
-        float dRdR = dR.innerProduct(dR);
-        float dVdV = dV.innerProduct(dV);
-        float sigma = getRadius() + neigh.getRadius();
-        float d = (float) Math.pow(dVdR, 2) - (dVdV) * (dRdR - (float) Math.pow(sigma, 2));
+        double dRdR = dR.innerProduct(dR);
+        double dVdV = dV.innerProduct(dV);
+        double sigma = getRadius() + neigh.getRadius();
+        double d = (double) Math.pow(dVdR, 2) - (dVdV) * (dRdR - (double) Math.pow(sigma, 2));
 
         if (d < 0 ) {
-            return Float.NaN;
+            return Double.NaN;
         }
-        return (-dVdR + (float) Math.sqrt(d)) / dVdV;
+        return ((-dVdR + Math.sqrt(d)) / dVdV) * 0.99;
     }
 
     public void bounceX() {
@@ -82,7 +82,7 @@ public class Particle {
         incrementCollision();
     }
 
-    public float getMass() {
+    public double getMass() {
         return mass;
     }
 
@@ -93,11 +93,11 @@ public class Particle {
     public void bounce(Particle b) {
         Vector2 dR = getR().substract(b.getR());
         Vector2 dV = getV().substract(b.getV());
-        float dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
-        float sigma = getRadius() + b.getRadius();
-        float J = (2 * getMass() * b.getMass() * (dVdR)) / sigma * (getMass() * b.getMass());
-        float Jx = J * dR.getX() / sigma;
-        float Jy = J * dR.getY() / sigma;
+        double dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
+        double sigma = getRadius() + b.getRadius();
+        double J = (2 * getMass() * b.getMass() * (dVdR)) / sigma * (getMass() * b.getMass());
+        double Jx = J * dR.getX() / sigma;
+        double Jy = J * dR.getY() / sigma;
 
         v.setX(v.getX() - Jx / getMass());
         v.setY(v.getY() - Jy / getMass());
@@ -108,7 +108,7 @@ public class Particle {
         b.incrementCollision();
     }
 
-    public void setCellCoords(int Mx, int My, float Lx, float Ly) {
+    public void setCellCoords(int Mx, int My, double Lx, double Ly) {
         int xOffset = (int)Math.floor((getR().getX() * Mx) / Lx);
         int yOffset = (int)Math.floor((getR().getY() * My) / Ly);
 
@@ -165,19 +165,19 @@ public class Particle {
         this.neighbours = neighbours;
     }
 
-    public float getRc() {
+    public double getRc() {
         return rc;
     }
 
-    public void setRc(float rc) {
+    public void setRc(double rc) {
         this.rc = rc;
     }
 
-    public float getRadius() {
+    public double getRadius() {
         return radius;
     }
 
-    public void setRadius(float radius) {
+    public void setRadius(double radius) {
         this.radius = radius;
     }
 
@@ -222,7 +222,7 @@ public class Particle {
         return collisions;
     }
 
-    public void updateR(float t) {
+    public void updateR(double t) {
         r.setX(getR().getX() + getV().getX() * t);
         r.setY(getR().getY() + getV().getY() * t);
     }

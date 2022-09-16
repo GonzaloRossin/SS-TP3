@@ -4,17 +4,17 @@ import java.util.*;
 
 public class SimulationHandler {
     private int N;
-    private float rc;
-    private float pRadius;
-    private float pVModule;
-    private float pMass;
+    private double rc;
+    private double pRadius;
+    private double pVModule;
+    private double pMass;
 
-    private float Lx;
-    private float Ly;
+    private double Lx;
+    private double Ly;
     private int Mx;
     private int My;
 
-    private float ranY;
+    private double ranY;
     private int t;
 
     private int particleCount;
@@ -32,19 +32,19 @@ public class SimulationHandler {
     }
 
     public void simInit() {
-//        generateParticles();
-        generateDummyParticles();
+        generateParticles();
+//        generateDummyParticles();
         calculateM();
     }
 
     public void generateParticles() {
-        Random r = new Random(0);
+        Random r = new Random(1);
         for (int i = 0; i < N; i++) {
-            float rx = pRadius + r.nextFloat() * (Lx - 2 * pRadius);
-            float ry = pRadius + r.nextFloat() * (Ly - 2 * pRadius);
-            double ang = 0 + r.nextFloat() * 2 * Math.PI;
-            float vx = (float) (Math.cos(ang) * getPVModule());
-            float vy = (float) (Math.sin(ang) * getPVModule());
+            double rx = pRadius + r.nextDouble() * (Lx - 2 * pRadius);
+            double ry = pRadius + r.nextDouble() * (Ly - 2 * pRadius);
+            double ang = 0 + r.nextDouble() * 2 * Math.PI;
+            double vx = (Math.cos(ang) * getPVModule());
+            double vy = (Math.sin(ang) * getPVModule());
             particlesList.add(new Particle(rc, getPRadius(), rx, ry, particleCount++, vx, vy, getPMass()));
         }
     }
@@ -63,7 +63,7 @@ public class SimulationHandler {
     }
 
     public void calculateM() {
-        float maxRadius = 0.0f;
+        double maxRadius = 0.0f;
         for(Particle p : getParticlesList()) {
             if (p.getRadius() > maxRadius) {
                 maxRadius = p.getRadius();
@@ -88,6 +88,26 @@ public class SimulationHandler {
 
             // Adds the particle to de corresponding cell
             cells.get(particle.getCellX() + particle.getCellY() * getMx()).add(particle);
+        }
+        return cells;
+    }
+    
+    public List<List<Particle>> cellIndexUpdate() {
+        List<List<Particle>> cells = getCells();
+        for (int i = 0; i < getMx() * getMy(); i++) {
+            cells.get(i).clear();
+        }
+        for (Particle particle: getParticlesList()) {
+            // Calculates cell coordinates and stores them in particle
+            particle.setCellCoords(getMx(), getMy(), getLx(), getLy());
+
+            // Adds the particle to de corresponding cell
+            int index = particle.getCellX() + particle.getCellY() * getMx();
+            if (index == 99) {
+                System.out.println("Hola");
+                return cells;
+            }
+            cells.get(index).add(particle);
         }
         return cells;
     }
@@ -124,13 +144,15 @@ public class SimulationHandler {
                 p.updateR(event.getT());
             }
             // Update all events timers
+            double curT = event.getT();
             for (Event e : events) {
-                e.setT(e.getT() - event.getT());
+                e.setT(e.getT() - curT);
             }
             // Update involved particles velocities
             event.bounce();
 
             // Add events for involved particles
+            cellIndexUpdate();
             if (event.getEventType() == EventType.PARTICLES) {
                 calculateNeighbours(event.getB());
                 addEvents(event.getB());
@@ -138,10 +160,14 @@ public class SimulationHandler {
             calculateNeighbours(event.getA());
             addEvents(event.getA());
             t++;
-
         }
         events.remove(event);
+        removeNotValidEvents();
         return isValid;
+    }
+
+    public void removeNotValidEvents() {
+        events.removeIf(e -> !e.isValidEvent());
     }
 
     public void eventSetup() {
@@ -190,11 +216,11 @@ public class SimulationHandler {
         }
     }
 
-    public float getRc() {
+    public double getRc() {
         return rc;
     }
 
-    public void setRc(float rc) {
+    public void setRc(double rc) {
         this.rc = rc;
     }
 
@@ -206,19 +232,19 @@ public class SimulationHandler {
         N = n;
     }
 
-    public float getLx() {
+    public double getLx() {
         return Lx;
     }
 
-    public void setLx(float lx) {
+    public void setLx(double lx) {
         Lx = lx;
     }
 
-    public float getLy() {
+    public double getLy() {
         return Ly;
     }
 
-    public void setLy(float ly) {
+    public void setLy(double ly) {
         Ly = ly;
     }
 
@@ -242,35 +268,35 @@ public class SimulationHandler {
         return cells;
     }
 
-    public float getRanY() {
+    public double getRanY() {
         return ranY;
     }
 
-    public void setRanY(float ranY) {
+    public void setRanY(double ranY) {
         this.ranY = ranY;
     }
 
-    public float getPMass() {
+    public double getPMass() {
         return pMass;
     }
 
-    public void setPMass(float pMass) {
+    public void setPMass(double pMass) {
         this.pMass = pMass;
     }
 
-    public float getPVModule() {
+    public double getPVModule() {
         return pVModule;
     }
 
-    public void setPVModule(float pVModule) {
+    public void setPVModule(double pVModule) {
         this.pVModule = pVModule;
     }
 
-    public float getPRadius() {
+    public double getPRadius() {
         return pRadius;
     }
 
-    public void setPRadius(float pRadius) {
+    public void setPRadius(double pRadius) {
         this.pRadius = pRadius;
     }
 }

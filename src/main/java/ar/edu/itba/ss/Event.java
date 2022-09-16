@@ -3,23 +3,25 @@ package ar.edu.itba.ss;
 import java.util.Objects;
 
 public class Event implements Comparable<Event> {
-    private float t;
+    private double t;
     private Particle a;
     private int aCollisions;
     private Particle b;
     private int bCollisions;
     private EventType eventType;
+    private static int id;
 
-    public Event(float t, Particle a, Particle b, EventType eventType) {
+    public Event(double t, Particle a, Particle b, EventType eventType) {
         this.t = t;
         this.a = a;
         this.aCollisions = a.getCollisions();
         this.bCollisions = b.getCollisions();
         this.b = b;
         this.eventType = eventType;
+        this.id = id++;
     }
 
-    public Event(float t, Particle a, EventType eventType) {
+    public Event(double t, Particle a, EventType eventType) {
         this.t = t;
         this.a = a;
         this.eventType = eventType;
@@ -27,7 +29,7 @@ public class Event implements Comparable<Event> {
     }
 
     public boolean isValidEvent() {
-        if (Float.isInfinite(t)) {
+        if (Double.isInfinite(t)) {
             return false;
         }
         if (eventType == EventType.PARTICLES) {
@@ -54,11 +56,11 @@ public class Event implements Comparable<Event> {
         }
     }
 
-    public float getT() {
+    public double getT() {
         return t;
     }
 
-    public void setT(float t) {
+    public void setT(double t) {
         this.t = t;
     }
 
@@ -80,10 +82,18 @@ public class Event implements Comparable<Event> {
 
     @Override
     public int compareTo(Event o) {
-        if (Float.compare(t, o.getT()) == 0) {
-            return Integer.compare(a.getId(), o.getA().getId());
+        if (Double.compare(t, o.getT()) != 0) {
+            return Double.compare(t, o.getT());
         }
-        return Float.compare(t, o.getT());
+        if (aCollisions != o.a.getCollisions()) {
+            return Integer.compare(aCollisions, o.a.getCollisions());
+        }
+        if (eventType == EventType.PARTICLES) {
+            if (bCollisions != o.b.getCollisions()) {
+                return Integer.compare(aCollisions, o.b.getCollisions());
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -91,7 +101,7 @@ public class Event implements Comparable<Event> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
-        return Float.compare(event.t, t) == 0 && a.equals(event.a) && eventType == event.eventType;
+        return Double.compare(event.t, t) == 0 && a.equals(event.a) && eventType == event.eventType;
     }
 
     @Override
