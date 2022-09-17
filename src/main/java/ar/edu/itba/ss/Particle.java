@@ -65,7 +65,7 @@ public class Particle {
         double dRdR = dR.innerProduct(dR);
         double dVdV = dV.innerProduct(dV);
         double sigma = getRadius() + neigh.getRadius();
-        double d = (double) Math.pow(dVdR, 2) - (dVdV) * (dRdR - (double) Math.pow(sigma, 2));
+        double d = Math.pow(dVdR, 2) - (dVdV) * (dRdR - Math.pow(sigma, 2));
 
         if (d < 0 ) {
             return Double.NaN;

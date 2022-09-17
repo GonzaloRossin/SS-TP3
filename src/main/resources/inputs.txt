@@ -1,8 +1,9 @@
-N 1
+N 150
 Lx 0.24
 Ly 0.29
 RanY 0.01
-rc 0.16
+rc 0.04
+
 pRadius 0.0015
 pMass 1
 pVModule 0.01

@@ -103,10 +103,6 @@ public class SimulationHandler {
 
             // Adds the particle to de corresponding cell
             int index = particle.getCellX() + particle.getCellY() * getMx();
-            if (index == 99) {
-                System.out.println("Hola");
-                return cells;
-            }
             cells.get(index).add(particle);
         }
         return cells;
