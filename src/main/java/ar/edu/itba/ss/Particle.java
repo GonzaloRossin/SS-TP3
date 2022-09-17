@@ -56,21 +56,22 @@ public class Particle {
     }
 
     public double collides(Particle neigh) {
-        Vector2 dR = getR().substract(neigh.getR());
-        Vector2 dV = getV().substract(neigh.getV());
-        double dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
+        Vector2 dR = neigh.getR().substract(getR());
+        Vector2 dV = neigh.getV().substract(getV());
+
+        double dVdR = dV.innerProduct(dR);
         if (dVdR >= 0) {
             return Double.NaN;
         }
         double dRdR = dR.innerProduct(dR);
         double dVdV = dV.innerProduct(dV);
         double sigma = getRadius() + neigh.getRadius();
-        double d = Math.pow(dVdR, 2) - (dVdV) * (dRdR - Math.pow(sigma, 2));
+        double d = Math.pow(dVdR, 2) - dVdV * (dRdR - Math.pow(sigma, 2));
 
         if (d < 0 ) {
             return Double.NaN;
         }
-        return ((-dVdR + Math.sqrt(d)) / dVdV) * 0.99;
+        return  -((dVdR + Math.sqrt(d)) / dVdV);
     }
 
     public void bounceX() {
@@ -91,19 +92,23 @@ public class Particle {
     }
 
     public void bounce(Particle b) {
-        Vector2 dR = getR().substract(b.getR());
-        Vector2 dV = getV().substract(b.getV());
-        double dVdR = dV.getX() * dR.getX() + dV.getY() * dR.getY();
-        double sigma = getRadius() + b.getRadius();
-        double J = (2 * getMass() * b.getMass() * (dVdR)) / sigma * (getMass() * b.getMass());
-        double Jx = J * dR.getX() / sigma;
-        double Jy = J * dR.getY() / sigma;
+        Vector2 dR = b.getR().substract(getR());
+        Vector2 dV = b.getV().substract(getV());
 
-        v.setX(v.getX() - Jx / getMass());
+        double dVdR = dV.innerProduct(dR);
+        double sigma = getRadius() + b.getRadius();
+        double J = (2 * getMass() * b.getMass() * dVdR) / (sigma * (getMass() + b.getMass()));
+        double Jx = (J * dR.getX()) / sigma;
+        double Jy = (J * dR.getY()) / sigma;
+
+        double newVx1 = v.getX() - Jx / getMass();
+        double val = 0.01 / Math.abs(newVx1);
+        v.setX(newVx1);
         v.setY(v.getY() - Jy / getMass());
         incrementCollision();
 
-        b.getV().setX(b.getV().getX() + Jx / b.getMass());
+        double newVx2 = b.getV().getX() + Jx / b.getMass();
+        b.getV().setX(newVx2);
         b.getV().setY(b.getV().getY() + Jy / b.getMass());
         b.incrementCollision();
     }
@@ -136,9 +141,14 @@ public class Particle {
         return Math.sqrt(Math.pow(p.getR().getX() - getR().getX(), 2) + Math.pow(p.getR().getY() - getR().getY(), 2)) < getRc() + getRadius() + p.getRadius();
     }
 
-    @Override
+//    @Override
+//    public String toString() {
+//        return String.format("Id %d pos[%.2f, %.2f] rc %.2f cellX %d cellY %d", id, r.getX(), r.getY(), rc, cellX, cellY);
+//    }
+
+        @Override
     public String toString() {
-        return String.format("Id %d pos[%.2f, %.2f] rc %.2f cellX %d cellY %d", id, r.getX(), r.getY(), rc, cellX, cellY);
+        return String.format("Id %d R[%.2f, %.2f] V[%.2f, %.2f] cellX %d cellY %d", id, r.getX(), r.getY(),v.getX(), v.getY(), cellX, cellY);
     }
 
     public String strNeighbours() {

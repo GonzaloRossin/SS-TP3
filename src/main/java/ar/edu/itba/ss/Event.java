@@ -92,6 +92,8 @@ public class Event implements Comparable<Event> {
             if (bCollisions != o.b.getCollisions()) {
                 return Integer.compare(aCollisions, o.b.getCollisions());
             }
+        } else {
+            return Integer.compare(getA().getId(), o.getA().getId());
         }
         return 0;
     }

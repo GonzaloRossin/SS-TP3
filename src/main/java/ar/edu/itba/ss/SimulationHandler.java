@@ -57,7 +57,7 @@ public class SimulationHandler {
     public String printParticles() {
         StringBuilder sb = new StringBuilder();
         for (Particle particle : particlesList) {
-            sb.append(String.format("%f %f\n", particle.getR().getX(), particle.getR().getY(), 0.0f));
+            sb.append(String.format("%f %f 1\n", particle.getR().getX(), particle.getR().getY(), 0.0f));
         }
         return sb.toString();
     }
@@ -103,6 +103,10 @@ public class SimulationHandler {
 
             // Adds the particle to de corresponding cell
             int index = particle.getCellX() + particle.getCellY() * getMx();
+            if (index == -5) {
+                System.out.println("Hola");
+                return cells;
+            }
             cells.get(index).add(particle);
         }
         return cells;

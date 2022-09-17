@@ -38,12 +38,12 @@ public class App
         StringBuilder walls = new StringBuilder();
 
         for (int i = 0; i < xAmount; i++) {
-            walls.append(String.format("%f %f\n", i * simulationHandler.getPRadius() * 2, 0.0f));
-            walls.append(String.format("%f %f\n", i * simulationHandler.getPRadius() * 2, simulationHandler.getLy()));
+            walls.append(String.format("%f %f 255\n", i * simulationHandler.getPRadius() * 2, 0.0f));
+            walls.append(String.format("%f %f 255\n", i * simulationHandler.getPRadius() * 2, simulationHandler.getLy()));
         }
         for (int i = 0; i < yAmount; i++) {
-            walls.append(String.format("%f %f\n", 0.0f, i * simulationHandler.getPRadius() * 2));
-            walls.append(String.format("%f %f\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
+            walls.append(String.format("%f %f 255\n", 0.0f, i * simulationHandler.getPRadius() * 2));
+            walls.append(String.format("%f %f 255\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
         }
         sb.append(simulationHandler.printParticles());
         writeToFile(pw, sb.append(walls).toString());

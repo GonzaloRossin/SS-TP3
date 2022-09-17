@@ -12,6 +12,14 @@ public class Vector2 {
         return this.x * v.getX() + this.y * v.getY();
     }
 
+    @Override
+    public String toString() {
+        return "Vector2{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
     public Vector2 substract(Vector2 v) {
         return new Vector2(v.getX() - getX(), v.getY() - getY());
     }
