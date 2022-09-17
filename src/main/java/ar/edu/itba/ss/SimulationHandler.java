@@ -34,17 +34,24 @@ public class SimulationHandler {
     public void simInit() {
         generateParticles();
 //        generateDummyParticles();
-        calculateM();
+//        calculateM();
     }
 
     public void generateParticles() {
         Random r = new Random(1);
         for (int i = 0; i < N; i++) {
-            double rx = pRadius + r.nextDouble() * (Lx - 2 * pRadius);
+            double rx = pRadius + r.nextDouble() * ((Lx / 2) - 2 * pRadius);
+//            if (Math.abs(getLx() / 2 - rx) < 2 * pRadius) {
+//                if (r.nextBoolean()) {
+//                    rx += 4 * pRadius;
+//                } else {
+//                    rx -= 4 * pRadius;
+//                }
+//            }
             double ry = pRadius + r.nextDouble() * (Ly - 2 * pRadius);
             boolean ok = true;
             for (Particle p : particlesList) {
-                if (!(Math.pow(rx - p.getR().getX(), 2) + Math.pow(ry - p.getR().getY(), 2) > pRadius * pRadius)) {
+                if (!(Math.pow(rx - p.getR().getX(), 2) + Math.pow(ry - p.getR().getY(), 2) > 4 * pRadius * pRadius)) {
                     ok = false;
                     break;
                 }
@@ -60,8 +67,8 @@ public class SimulationHandler {
     }
 
     public void generateDummyParticles() {
-        particlesList.add(new Particle(rc, getPRadius(), getLx()/2 - 0.01f, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
-        particlesList.add(new Particle(rc, getPRadius(), getLx()/2 + 0.01f, getLy()/2, particleCount++, -getPVModule(), 0, getPMass()));
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/4 - 0.01f, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/4 + 0.01f, getLy()/2, particleCount++, -getPVModule(), 0, getPMass()));
     }
 
     public String printParticles() {
@@ -113,7 +120,7 @@ public class SimulationHandler {
 
             // Adds the particle to de corresponding cell
             int index = particle.getCellX() + particle.getCellY() * getMx();
-            if (index == 7) {
+            if (index == -1) {
                 System.out.println("Hola");
                 return cells;
             }
@@ -188,7 +195,8 @@ public class SimulationHandler {
 
     public void addEvents(Particle p) {
         events.add(new Event(p.collidesY(getLy()), p, EventType.HORIZONTAL_WALL));
-        events.add(new Event(p.collidesX(getLx()), p, EventType.VERTICAL_WALL));
+        events.add(new Event(p.collidesX(getLx(), getLx() / 2), p, EventType.VERTICAL_WALL));
+//        events.add(new Event(p.collidesX(getLx() / 2), p, EventType.VERTICAL_WALL));
 
         for (Particle neigh : p.getNeighbours()) {
             events.add(new Event(p.collides(neigh), p, neigh, EventType.PARTICLES));

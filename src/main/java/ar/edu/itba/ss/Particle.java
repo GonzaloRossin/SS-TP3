@@ -46,12 +46,38 @@ public class Particle {
         if (v.getY() > 0) {
             return ((Ly - radius - r.getY()) / v.getY()) * correction;
         }
-        return (( radius - r.getY()) / v.getY()) * correction;
+        return ((radius - r.getY()) / v.getY()) * correction;
     }
 
-    public double collidesX(double Lx) {
+    public double collidesX(double wallX, double Ly, double ranY) {
+        if (r.getX() < wallX) {
+            if (v.getX() > 0) {
+                double t = ((wallX - radius - r.getY()) / v.getY());
+                double y = r.getY() + v.getY() * t;
+                if (Math.abs(y - Ly/2) < ranY / 2) {
+                    return t;
+                }
+            }
+        } else {
+            if (v.getX() < 0) {
+                double t = (wallX + radius - r.getX()) / v.getX();
+                double y = r.getY() + v.getY() * t;
+                if (Math.abs(y - Ly/2) < ranY / 2) {
+                    return t;
+                }
+            }
+        }
+        return Double.NaN;
+    }
+    public double collidesX(double Lx, double wallX) {
         if (v.getX() > 0) {
+            if (r.getX() - radius < wallX) {
+                return ((wallX - radius - r.getX()) / v.getX()) * correction;
+            }
             return ((Lx - radius - r.getX()) / v.getX()) * correction;
+        }
+        if (r.getX() + radius > wallX) {
+            return ((wallX + radius - r.getX()) / v.getX()) * correction;
         }
         return ((radius - r.getX()) / v.getX()) * correction;
     }

@@ -33,7 +33,7 @@ public class App
         // Particle contour
         int xAmount = (int) (simulationHandler.getLx() / simulationHandler.getPRadius() / 2);
         int yAmount = (int) (simulationHandler.getLy() / simulationHandler.getPRadius() / 2);
-        int size = simulationHandler.getParticlesList().size() + xAmount * 2 + yAmount * 2;
+        int size = simulationHandler.getParticlesList().size() + xAmount * 2 + yAmount * 3;
         StringBuilder sb = new StringBuilder(size + "\n\n");
         StringBuilder walls = new StringBuilder();
 
@@ -44,6 +44,9 @@ public class App
         for (int i = 0; i < yAmount; i++) {
             walls.append(String.format("%f %f 255\n", 0.0f, i * simulationHandler.getPRadius() * 2));
             walls.append(String.format("%f %f 255\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
+        }
+        for (int i = 0; i < yAmount; i++) {
+            walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, i * simulationHandler.getPRadius() * 2));
         }
         sb.append(simulationHandler.printParticles());
         writeToFile(pw, sb.append(walls).toString());
