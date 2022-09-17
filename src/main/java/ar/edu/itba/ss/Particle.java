@@ -16,6 +16,7 @@ public class Particle {
     private int cellX;
     private int cellY;
     private int collisions;
+    private static final double correction = 0.99;
 
     private Set<Particle> neighbours;
 
@@ -43,16 +44,16 @@ public class Particle {
 
     public double collidesY(double Ly) {
         if (v.getY() > 0) {
-            return ((Ly - radius - r.getY()) / v.getY()) * 0.99;
+            return ((Ly - radius - r.getY()) / v.getY()) * correction;
         }
-        return ((radius - r.getY()) / v.getY()) * 0.99;
+        return (( radius - r.getY()) / v.getY()) * correction;
     }
 
     public double collidesX(double Lx) {
         if (v.getX() > 0) {
-            return ((Lx - radius - r.getX()) / v.getX()) * 0.99;
+            return ((Lx - radius - r.getX()) / v.getX()) * correction;
         }
-        return ((radius - r.getX()) / v.getX()) * 0.99;
+        return ((radius - r.getX()) / v.getX()) * correction;
     }
 
     public double collides(Particle neigh) {
@@ -114,8 +115,8 @@ public class Particle {
     }
 
     public void setCellCoords(int Mx, int My, double Lx, double Ly) {
-        int xOffset = (int)Math.floor((getR().getX() * Mx) / Lx);
-        int yOffset = (int)Math.floor((getR().getY() * My) / Ly);
+        int xOffset = (int)Math.floor(((getR().getX()) * Mx) / (Lx));
+        int yOffset = (int)Math.floor(((getR().getY()) * My) / (Ly));
 
         setCellX(xOffset);
         setCellY(yOffset);

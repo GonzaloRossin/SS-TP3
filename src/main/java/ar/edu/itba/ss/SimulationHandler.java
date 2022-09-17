@@ -42,6 +42,16 @@ public class SimulationHandler {
         for (int i = 0; i < N; i++) {
             double rx = pRadius + r.nextDouble() * (Lx - 2 * pRadius);
             double ry = pRadius + r.nextDouble() * (Ly - 2 * pRadius);
+            boolean ok = true;
+            for (Particle p : particlesList) {
+                if (!(Math.pow(rx - p.getR().getX(), 2) + Math.pow(ry - p.getR().getY(), 2) > pRadius * pRadius)) {
+                    ok = false;
+                    break;
+                }
+            }
+            if (!ok) {
+                continue;
+            }
             double ang = 0 + r.nextDouble() * 2 * Math.PI;
             double vx = (Math.cos(ang) * getPVModule());
             double vy = (Math.sin(ang) * getPVModule());
@@ -103,7 +113,7 @@ public class SimulationHandler {
 
             // Adds the particle to de corresponding cell
             int index = particle.getCellX() + particle.getCellY() * getMx();
-            if (index == -5) {
+            if (index == 7) {
                 System.out.println("Hola");
                 return cells;
             }
@@ -132,7 +142,7 @@ public class SimulationHandler {
     }
 
     public boolean endCondition() {
-        return t == 250;
+        return t == 1500;
     }
 
     public boolean iterate() {

@@ -85,15 +85,13 @@ public class Event implements Comparable<Event> {
         if (Double.compare(t, o.getT()) != 0) {
             return Double.compare(t, o.getT());
         }
-        if (aCollisions != o.a.getCollisions()) {
-            return Integer.compare(aCollisions, o.a.getCollisions());
+        if (getA().getId() != o.getA().getId()) {
+            return Integer.compare(getA().getId(), o.getA().getId());
         }
         if (eventType == EventType.PARTICLES) {
-            if (bCollisions != o.b.getCollisions()) {
-                return Integer.compare(aCollisions, o.b.getCollisions());
+            if (getB().getId() != o.getB().getId()) {
+                return Integer.compare(getB().getId(), o.getB().getId());
             }
-        } else {
-            return Integer.compare(getA().getId(), o.getA().getId());
         }
         return 0;
     }
