@@ -20,6 +20,7 @@ public class SimulationHandler {
     private int particleCount;
     private final List<List<Particle>> cells;
     List<Particle> particlesList = new ArrayList<>();
+    private int eventId = 0;
 
     private final SortedSet<Event> events = new TreeSet<>();
 
@@ -40,7 +41,7 @@ public class SimulationHandler {
     public void generateParticles() {
         Random r = new Random(1);
         for (int i = 0; i < N; i++) {
-            double rx = pRadius + r.nextDouble() * ((Lx / 2) - 2 * pRadius);
+            double rx = pRadius * 2 + r.nextDouble() * ((Lx / 2) - 3 * pRadius);
 //            if (Math.abs(getLx() / 2 - rx) < 2 * pRadius) {
 //                if (r.nextBoolean()) {
 //                    rx += 4 * pRadius;
@@ -48,7 +49,7 @@ public class SimulationHandler {
 //                    rx -= 4 * pRadius;
 //                }
 //            }
-            double ry = pRadius + r.nextDouble() * (Ly - 2 * pRadius);
+            double ry = 2 * pRadius + r.nextDouble() * (Ly - 4 * pRadius);
             boolean ok = true;
             for (Particle p : particlesList) {
                 if (!(Math.pow(rx - p.getR().getX(), 2) + Math.pow(ry - p.getR().getY(), 2) > 4 * pRadius * pRadius)) {
@@ -64,11 +65,21 @@ public class SimulationHandler {
             double vy = (Math.sin(ang) * getPVModule());
             particlesList.add(new Particle(rc, getPRadius(), rx, ry, particleCount++, vx, vy, getPMass()));
         }
+
+        double topRan = Ly / 2 + ranY / 2 + pRadius - 0.0008;
+        double botRan = Ly / 2 - ranY / 2 - pRadius + 0.0008;
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, topRan, particleCount++, 0, 0, 100000000));
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, botRan, particleCount++, 0, 0, 100000000));
     }
 
     public void generateDummyParticles() {
         particlesList.add(new Particle(rc, getPRadius(), getLx()/4 - 0.01f, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
         particlesList.add(new Particle(rc, getPRadius(), getLx()/4 + 0.01f, getLy()/2, particleCount++, -getPVModule(), 0, getPMass()));
+
+        double topRan = Ly / 2 + ranY / 2 + pRadius - 0.0008;
+        double botRan = Ly / 2 - ranY / 2 - pRadius + 0.0008;
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, topRan, particleCount++, 0, 0, 1000000));
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, botRan, particleCount++, 0, 0, 1000000));
     }
 
     public String printParticles() {
@@ -120,10 +131,6 @@ public class SimulationHandler {
 
             // Adds the particle to de corresponding cell
             int index = particle.getCellX() + particle.getCellY() * getMx();
-            if (index == -1) {
-                System.out.println("Hola");
-                return cells;
-            }
             cells.get(index).add(particle);
         }
         return cells;
@@ -149,7 +156,7 @@ public class SimulationHandler {
     }
 
     public boolean endCondition() {
-        return t == 1500;
+        return t == 30000;
     }
 
     public boolean iterate() {
@@ -163,7 +170,8 @@ public class SimulationHandler {
             // Update all events timers
             double curT = event.getT();
             for (Event e : events) {
-                e.setT(e.getT() - curT);
+                double newT = e.getT() - curT;
+                e.setT(newT);
             }
             // Update involved particles velocities
             event.bounce();
@@ -194,12 +202,19 @@ public class SimulationHandler {
     }
 
     public void addEvents(Particle p) {
-        events.add(new Event(p.collidesY(getLy()), p, EventType.HORIZONTAL_WALL));
-        events.add(new Event(p.collidesX(getLx(), getLx() / 2), p, EventType.VERTICAL_WALL));
-//        events.add(new Event(p.collidesX(getLx() / 2), p, EventType.VERTICAL_WALL));
-
+        double t = p.collidesY(getLy());
+        if (t > 0) {
+            events.add(new Event(t, p, EventType.HORIZONTAL_WALL, eventId++));
+        }
+        t = p.collidesX(getLx(), getLx() / 2, getLy(), getRanY());
+        if (t > 0) {
+            events.add(new Event(t, p, EventType.VERTICAL_WALL, eventId++));
+        }
         for (Particle neigh : p.getNeighbours()) {
-            events.add(new Event(p.collides(neigh), p, neigh, EventType.PARTICLES));
+            t = p.collides(neigh);
+            if (t > 0) {
+                events.add(new Event(t, p, neigh, EventType.PARTICLES, eventId++));
+            }
         }
     }
 

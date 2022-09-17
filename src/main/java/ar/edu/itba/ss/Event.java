@@ -9,23 +9,24 @@ public class Event implements Comparable<Event> {
     private Particle b;
     private int bCollisions;
     private EventType eventType;
-    private static int id;
+    private static int id = 0;
 
-    public Event(double t, Particle a, Particle b, EventType eventType) {
+    public Event(double t, Particle a, Particle b, EventType eventType, int id) {
         this.t = t;
         this.a = a;
         this.aCollisions = a.getCollisions();
         this.bCollisions = b.getCollisions();
         this.b = b;
         this.eventType = eventType;
-        this.id = id++;
+        this.id = id;
     }
 
-    public Event(double t, Particle a, EventType eventType) {
+    public Event(double t, Particle a, EventType eventType, int id) {
         this.t = t;
         this.a = a;
         this.eventType = eventType;
         this.aCollisions = a.getCollisions();
+        this.id = id;
     }
 
     public boolean isValidEvent() {
@@ -88,7 +89,7 @@ public class Event implements Comparable<Event> {
         if (getA().getId() != o.getA().getId()) {
             return Integer.compare(getA().getId(), o.getA().getId());
         }
-        if (eventType == EventType.PARTICLES) {
+        if (eventType == EventType.PARTICLES && o.getEventType() == EventType.PARTICLES) {
             if (getB().getId() != o.getB().getId()) {
                 return Integer.compare(getB().getId(), o.getB().getId());
             }

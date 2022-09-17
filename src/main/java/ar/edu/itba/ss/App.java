@@ -28,12 +28,11 @@ public class App
 
         simulationHandler.simInit();
 
-        PrintWriter pw = openFile("output/anim/animation.xyz");
-
         // Particle contour
         int xAmount = (int) (simulationHandler.getLx() / simulationHandler.getPRadius() / 2);
         int yAmount = (int) (simulationHandler.getLy() / simulationHandler.getPRadius() / 2);
-        int size = simulationHandler.getParticlesList().size() + xAmount * 2 + yAmount * 3;
+//        int ranYAmount = (int) (((simulationHandler.getLy() - simulationHandler.getRanY() / 2) / simulationHandler.getPRadius()) / 2) - 1;
+        int size = simulationHandler.getParticlesList().size() + xAmount * 2 + yAmount * 2 + (yAmount - 5) + 1;
         StringBuilder sb = new StringBuilder(size + "\n\n");
         StringBuilder walls = new StringBuilder();
 
@@ -45,19 +44,26 @@ public class App
             walls.append(String.format("%f %f 255\n", 0.0f, i * simulationHandler.getPRadius() * 2));
             walls.append(String.format("%f %f 255\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
         }
-        for (int i = 0; i < yAmount; i++) {
+        for (int i = 0; i < (yAmount - 3) / 2; i++) {
             walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, i * simulationHandler.getPRadius() * 2));
+            walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, simulationHandler.getLy() - (i * simulationHandler.getPRadius() * 2)));
         }
         sb.append(simulationHandler.printParticles());
-        writeToFile(pw, sb.append(walls).toString());
 
+        PrintWriter pw = null;
         simulationHandler.cellIndexMethod();
         simulationHandler.eventSetup();
+        int i = 0;
+        int j = 0;
         while (!simulationHandler.endCondition()) {
             if(simulationHandler.iterate()) {
                 StringBuilder s = new StringBuilder(size + "\n\n");
                 s.append(walls);
+                if(i % 1500 == 0) {
+                    pw = openFile("output/anim/animation" + j++ + ".xyz");
+                }
                 writeToFile(pw, s.append(simulationHandler.printParticles()).toString());
+                i++;
             }
         }
         pw.close();

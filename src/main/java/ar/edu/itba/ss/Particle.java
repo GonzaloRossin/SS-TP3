@@ -16,7 +16,7 @@ public class Particle {
     private int cellX;
     private int cellY;
     private int collisions;
-    private static final double correction = 0.99;
+    private static final double correction = 0.95;
 
     private Set<Particle> neighbours;
 
@@ -49,35 +49,32 @@ public class Particle {
         return ((radius - r.getY()) / v.getY()) * correction;
     }
 
-    public double collidesX(double wallX, double Ly, double ranY) {
-        if (r.getX() < wallX) {
-            if (v.getX() > 0) {
-                double t = ((wallX - radius - r.getY()) / v.getY());
-                double y = r.getY() + v.getY() * t;
-                if (Math.abs(y - Ly/2) < ranY / 2) {
-                    return t;
-                }
-            }
-        } else {
-            if (v.getX() < 0) {
-                double t = (wallX + radius - r.getX()) / v.getX();
-                double y = r.getY() + v.getY() * t;
-                if (Math.abs(y - Ly/2) < ranY / 2) {
-                    return t;
-                }
-            }
-        }
-        return Double.NaN;
-    }
-    public double collidesX(double Lx, double wallX) {
+    public double collidesX(double Lx, double wallX, double Ly, double ranY) {
         if (v.getX() > 0) {
             if (r.getX() - radius < wallX) {
-                return ((wallX - radius - r.getX()) / v.getX()) * correction;
+                // Caso pared desde la izquierda
+                double t = ((wallX - radius - r.getX()) / v.getX()) * correction;
+                double y = r.getY() + v.getY() * t;
+                double topRan = (Ly / 2 + ranY / 2 + radius * 2);
+                double botRan = (Ly / 2 - ranY / 2 - radius * 2);
+
+                if (!(topRan - radius > y && y > botRan + radius)) {
+                    return t;
+                }
             }
-            return ((Lx - radius - r.getX()) / v.getX()) * correction;
+            return ((Lx - 3 * radius / 2 - r.getX()) / v.getX()) * correction;
         }
         if (r.getX() + radius > wallX) {
-            return ((wallX + radius - r.getX()) / v.getX()) * correction;
+            // Caso pared desde la derecha
+            double t = ((wallX + radius - r.getX()) / v.getX()) * correction;
+
+            double y = r.getY() + v.getY() * t;
+            double topRan = (Ly / 2 + ranY / 2) + radius * 2;
+            double botRan = (Ly / 2 - ranY / 2) - radius * 2;
+
+            if (!(topRan - radius > y && y > botRan + radius)) {
+                return t;
+            }
         }
         return ((radius - r.getX()) / v.getX()) * correction;
     }
@@ -98,7 +95,8 @@ public class Particle {
         if (d < 0 ) {
             return Double.NaN;
         }
-        return  -((dVdR + Math.sqrt(d)) / dVdV);
+        double t = -((dVdR + Math.sqrt(d)) / dVdV);
+        return  t;
     }
 
     public void bounceX() {
@@ -128,15 +126,15 @@ public class Particle {
         double Jx = (J * dR.getX()) / sigma;
         double Jy = (J * dR.getY()) / sigma;
 
-        double newVx1 = v.getX() - Jx / getMass();
-        double val = 0.01 / Math.abs(newVx1);
-        v.setX(newVx1);
-        v.setY(v.getY() - Jy / getMass());
-        incrementCollision();
-
-        double newVx2 = b.getV().getX() + Jx / b.getMass();
-        b.getV().setX(newVx2);
-        b.getV().setY(b.getV().getY() + Jy / b.getMass());
+        if (getMass() < 2) {
+            v.setX(v.getX() - Jx / getMass());
+            v.setY(v.getY() - Jy / getMass());
+            incrementCollision();
+        }
+        if (b.getMass() < 2) {
+            b.getV().setX(b.getV().getX() + Jx / b.getMass());
+            b.getV().setY(b.getV().getY() + Jy / b.getMass());
+        }
         b.incrementCollision();
     }
 
