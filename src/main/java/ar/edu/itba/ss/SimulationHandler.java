@@ -17,6 +17,9 @@ public class SimulationHandler {
     private double ranY;
     private int t;
 
+    private double fp = 1;
+    private int particleCountLeft = 0;
+
     private int particleCount;
     private final List<List<Particle>> cells;
     List<Particle> particlesList = new ArrayList<>();
@@ -40,15 +43,8 @@ public class SimulationHandler {
 
     public void generateParticles() {
         Random r = new Random(1);
-        for (int i = 0; i < N; i++) {
+        for (int i = 0; i < N;) {
             double rx = pRadius * 2 + r.nextDouble() * ((Lx / 2) - 3 * pRadius);
-//            if (Math.abs(getLx() / 2 - rx) < 2 * pRadius) {
-//                if (r.nextBoolean()) {
-//                    rx += 4 * pRadius;
-//                } else {
-//                    rx -= 4 * pRadius;
-//                }
-//            }
             double ry = 2 * pRadius + r.nextDouble() * (Ly - 4 * pRadius);
             boolean ok = true;
             for (Particle p : particlesList) {
@@ -63,29 +59,30 @@ public class SimulationHandler {
             double ang = 0 + r.nextDouble() * 2 * Math.PI;
             double vx = (Math.cos(ang) * getPVModule());
             double vy = (Math.sin(ang) * getPVModule());
-            particlesList.add(new Particle(rc, getPRadius(), rx, ry, particleCount++, vx, vy, getPMass()));
+            particlesList.add(new Particle(rc, getPRadius(), rx, ry, particleCount++, vx, vy, getPMass(), 1));
+            i++;
         }
 
         double topRan = Ly / 2 + ranY / 2 + pRadius - 0.0008;
         double botRan = Ly / 2 - ranY / 2 - pRadius + 0.0008;
-        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, topRan, particleCount++, 0, 0, 100000000));
-        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, botRan, particleCount++, 0, 0, 100000000));
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, topRan, particleCount++, 0, 0, 100000000, 255));
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, botRan, particleCount++, 0, 0, 100000000, 255));
     }
 
     public void generateDummyParticles() {
-        particlesList.add(new Particle(rc, getPRadius(), getLx()/4 - 0.01f, getLy()/2, particleCount++, getPVModule(), 0, getPMass()));
-        particlesList.add(new Particle(rc, getPRadius(), getLx()/4 + 0.01f, getLy()/2, particleCount++, -getPVModule(), 0, getPMass()));
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/4 - 0.01f, getLy()/2, particleCount++, getPVModule(), 0, getPMass(), 1));
+        particlesList.add(new Particle(rc, getPRadius(), getLx()/4 + 0.01f, getLy()/2, particleCount++, -getPVModule(), 0, getPMass(), 1));
 
         double topRan = Ly / 2 + ranY / 2 + pRadius - 0.0008;
         double botRan = Ly / 2 - ranY / 2 - pRadius + 0.0008;
-        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, topRan, particleCount++, 0, 0, 1000000));
-        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, botRan, particleCount++, 0, 0, 1000000));
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, topRan, particleCount++, 0, 0, 1000000, 255));
+        particlesList.add(new Particle(rc, getPRadius(), getLx() / 2, botRan, particleCount++, 0, 0, 1000000, 255));
     }
 
     public String printParticles() {
         StringBuilder sb = new StringBuilder();
         for (Particle particle : particlesList) {
-            sb.append(String.format("%f %f 1\n", particle.getR().getX(), particle.getR().getY(), 0.0f));
+            sb.append(String.format("%f %f %d\n", particle.getR().getX(), particle.getR().getY(), particle.getColor()));
         }
         return sb.toString();
     }
@@ -155,9 +152,7 @@ public class SimulationHandler {
         }
     }
 
-    public boolean endCondition() {
-        return t == 30000;
-    }
+
 
     public boolean iterate() {
         Event event = events.first();
@@ -188,8 +183,25 @@ public class SimulationHandler {
         }
         events.remove(event);
         removeNotValidEvents();
+
+        calculateFp();
         return isValid;
     }
+
+    public boolean endCondition() {
+        return fp <= 0.5;
+    }
+
+    public void calculateFp() {
+        int count = 0;
+        for(Particle p: particlesList) {
+            if (p.getR().getX() < getLx() / 2) {
+                count++;
+            }
+        }
+        setFp(count / (double) particlesList.size());
+    }
+
 
     public void removeNotValidEvents() {
         events.removeIf(e -> !e.isValidEvent());
@@ -331,5 +343,13 @@ public class SimulationHandler {
 
     public void setPRadius(double pRadius) {
         this.pRadius = pRadius;
+    }
+
+    public double getFp() {
+        return fp;
+    }
+
+    public void setFp(double fp) {
+        this.fp = fp;
     }
 }

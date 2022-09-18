@@ -2,7 +2,7 @@ N 150
 Lx 0.24
 Ly 0.09
 RanY 0.01
-rc 0.08
+rc 0.03
 
 pRadius 0.0015
 pMass 1

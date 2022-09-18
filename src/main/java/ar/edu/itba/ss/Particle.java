@@ -16,6 +16,7 @@ public class Particle {
     private int cellX;
     private int cellY;
     private int collisions;
+    private int color;
     private static final double correction = 0.95;
 
     private Set<Particle> neighbours;
@@ -28,7 +29,7 @@ public class Particle {
         neighbours = new HashSet<>();
     }
 
-    public Particle(double rc, double radius, double rx, double ry, int id, double vx, double vy, double mass) {
+    public Particle(double rc, double radius, double rx, double ry, int id, double vx, double vy, double mass, int color) {
         this.rc = rc;
         this.radius = radius;
         this.r = new Vector2(rx, ry);
@@ -36,6 +37,7 @@ public class Particle {
         this.id = id;
         this.mass = mass;
         neighbours = new HashSet<>();
+        this.color = color;
     }
 
     Particle(double x, double y) {
@@ -260,5 +262,9 @@ public class Particle {
     public void updateR(double t) {
         r.setX(getR().getX() + getV().getX() * t);
         r.setY(getR().getY() + getV().getY() * t);
+    }
+
+    public int getColor() {
+        return color;
     }
 }
