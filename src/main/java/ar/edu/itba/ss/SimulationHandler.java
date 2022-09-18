@@ -27,6 +27,12 @@ public class SimulationHandler {
 
     private final SortedSet<Event> events = new TreeSet<>();
 
+    private double globalTime = 0;
+    private double timeStep = 0.1;
+    private double lastTime = 0;
+
+    private final SortedSet<Event> happened = new TreeSet<>();
+
     public SimulationHandler() {
         // Default
         particleCount = 0;
@@ -164,6 +170,7 @@ public class SimulationHandler {
             }
             // Update all events timers
             double curT = event.getT();
+
             for (Event e : events) {
                 double newT = e.getT() - curT;
                 e.setT(newT);
@@ -180,6 +187,12 @@ public class SimulationHandler {
             calculateNeighbours(event.getA());
             addEvents(event.getA());
             t++;
+
+            globalTime += curT;
+            if (globalTime > lastTime + timeStep) {
+                lastTime += timeStep;
+            }
+            happened.add(event);
         }
         events.remove(event);
         removeNotValidEvents();
@@ -351,5 +364,29 @@ public class SimulationHandler {
 
     public void setFp(double fp) {
         this.fp = fp;
+    }
+
+    public double getGlobalTime() {
+        return globalTime;
+    }
+
+    public void setGlobalTime(double globalTime) {
+        this.globalTime = globalTime;
+    }
+
+    public double getTimeStep() {
+        return timeStep;
+    }
+
+    public void setTimeStep(double timeStep) {
+        this.timeStep = timeStep;
+    }
+
+    public double getLastTime() {
+        return lastTime;
+    }
+
+    public void setLastTime(double lastTime) {
+        this.lastTime = lastTime;
     }
 }

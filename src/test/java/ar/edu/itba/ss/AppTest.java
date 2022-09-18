@@ -15,8 +15,7 @@ public class AppTest
     @Test
     public void shouldAnswerWithTrue()
     {
-        double module = 0.01, ang = Math.PI;
-        System.out.println(Math.cos(ang) * module);
-        System.out.println(Math.round(Math.sin(ang) * module));
+        double module = 5, ang = Math.PI;
+        System.out.println(module % 0.1);
     }
 }

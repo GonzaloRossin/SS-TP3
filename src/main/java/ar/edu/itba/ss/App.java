@@ -3,6 +3,8 @@ package ar.edu.itba.ss;
 import java.io.*;
 import java.util.Scanner;
 
+import static java.lang.System.currentTimeMillis;
+
 /**
  * Hello world!
  *
@@ -55,15 +57,23 @@ public class App
         simulationHandler.eventSetup();
         int i = 0;
         int j = 0;
+        double lastTime = simulationHandler.getGlobalTime();
+        double step = simulationHandler.getTimeStep();
         while (!simulationHandler.endCondition()) {
             if(simulationHandler.iterate()) {
-                StringBuilder s = new StringBuilder(size + "\n\n");
-                s.append(walls);
-                if(i % 1500 == 0) {
-                    pw = openFile("output/anim/animation" + j++ + ".xyz");
+                double actualTime = simulationHandler.getGlobalTime();
+                if (actualTime - lastTime > step) {
+                    lastTime = actualTime;
+
+                    // Obtengo datos
+                    StringBuilder s = new StringBuilder(size + "\n\n");
+                    s.append(walls);
+                    if(i % 1500 == 0) {
+                        pw = openFile("output/anim/animation" + j++ + ".xyz");
+                    }
+                    writeToFile(pw, s.append(simulationHandler.printParticles()).toString());
+                    i++;
                 }
-                writeToFile(pw, s.append(simulationHandler.printParticles()).toString());
-                i++;
             }
         }
         pw.close();
