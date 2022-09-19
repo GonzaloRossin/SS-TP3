@@ -18,7 +18,6 @@ public class SimulationHandler {
     private int t;
 
     private double fp = 1;
-    private int particleCountLeft = 0;
 
     private int particleCount;
     private final List<List<Particle>> cells;
@@ -31,7 +30,7 @@ public class SimulationHandler {
     private double timeStep = 0.1;
     private double lastTime = 0;
 
-    private final SortedSet<Event> happened = new TreeSet<>();
+    private double totalImpulse;
 
     public SimulationHandler() {
         // Default
@@ -47,8 +46,18 @@ public class SimulationHandler {
 //        calculateM();
     }
 
+    public void simReset() {
+        particlesList.clear();
+        events.clear();
+        cells.clear();
+        fp = 1;
+        globalTime = 0;
+        lastTime = 0;
+    }
+
+
     public void generateParticles() {
-        Random r = new Random(1);
+        Random r = new Random();
         for (int i = 0; i < N;) {
             double rx = pRadius * 2 + r.nextDouble() * ((Lx / 2) - 3 * pRadius);
             double ry = 2 * pRadius + r.nextDouble() * (Ly - 4 * pRadius);
@@ -189,10 +198,12 @@ public class SimulationHandler {
             t++;
 
             globalTime += curT;
-            if (globalTime > lastTime + timeStep) {
-                lastTime += timeStep;
+            if (event.getEventType() == EventType.HORIZONTAL_WALL){
+                totalImpulse += 2 * Math.abs(event.getA().getV().getY()) * event.getA().getMass();
             }
-            happened.add(event);
+            if (event.getEventType() == EventType.VERTICAL_WALL){
+                totalImpulse += 2 * Math.abs(event.getA().getV().getX()) * event.getA().getMass();
+            }
         }
         events.remove(event);
         removeNotValidEvents();
@@ -272,6 +283,20 @@ public class SimulationHandler {
                 yEnd = p.getCellY() + 2;
             }
         }
+    }
+
+    public double getCompletePerimeter() {
+        return (2 * Lx + 2 * Ly + 2 * (Ly / 2 + ranY / 2) + 2 * (Ly / 2 - ranY / 2));
+    }
+    public double getEnergy() {
+        return pMass * pVModule * pVModule / 2;
+    }
+    public void resetImpulse() {
+        totalImpulse = 0;
+    }
+
+    public double getTotalImpulse() {
+        return totalImpulse;
     }
 
     public double getRc() {

@@ -3,8 +3,6 @@ package ar.edu.itba.ss;
 import java.io.*;
 import java.util.Scanner;
 
-import static java.lang.System.currentTimeMillis;
-
 /**
  * Hello world!
  *
@@ -28,37 +26,93 @@ public class App
         // Reads txt
         App.readTxt(simulationHandler, scanner);
 
-        simulationHandler.simInit();
+
+        simulate3Maps(simulationHandler);
+
+        // Save data
+        System.out.println("Finished");
+    }
+
+    private static void simulate3Maps(SimulationHandler simulationHandler) {
+
+            simulationHandler.setN(150);
+            JsonPrinter jsonPrinter = new JsonPrinter();
+
+
+            for (int k = 0; k < 6; k++) {
+                simulationHandler.setPVModule(0.01 + k * 0.005);
+                DataAccumulator da = new DataAccumulator(simulationHandler.getN());
+
+                for (int j = 0; j < 10; j++) {
+                    simulationHandler.simReset();
+                    simulationHandler.simInit();
+                    simulationHandler.cellIndexMethod();
+                    simulationHandler.eventSetup();
+
+                    // External clock setup
+                    double lastTime = simulationHandler.getGlobalTime();
+                    double step = simulationHandler.getTimeStep();
+                    // Start simulation
+                    while (!simulationHandler.endCondition()) {
+                        if(simulationHandler.iterate()) {
+                            double actualTime = simulationHandler.getGlobalTime();
+                            if (actualTime - lastTime > step) {
+                                lastTime = actualTime;
+                                if (j == 0) {
+//                                    jsonPrinter.addFpVsT(simulationHandler.getGlobalTime(), simulationHandler.getFp());
+                                }
+                            }
+                        }
+                    }
+                    // Aca calculamos presion y temperatura y la agregamos al data Accumulator
+                    double zeroTime = simulationHandler.getGlobalTime();
+                    double actualTime = simulationHandler.getGlobalTime();
+                    lastTime = zeroTime;
+                    simulationHandler.resetImpulse();
+                    while (zeroTime + 10 > actualTime) {
+                        actualTime = simulationHandler.getGlobalTime();
+                        if (simulationHandler.iterate()) {
+                            if (actualTime - lastTime > step) {
+                                lastTime = actualTime;
+                            }
+                        }
+                    }
+                    double perimeter = simulationHandler.getCompletePerimeter();
+                    double PatIteration = simulationHandler.getTotalImpulse() / (perimeter * 10);
+                    da.addP(PatIteration);
+                }
+                jsonPrinter.addPVsT(da.getPressureProm(), simulationHandler.getEnergy(), da.getPressureError());
+            }
+            String str = String.format("plots/PvsT-%d.json", simulationHandler.getN());
+            PrintWriter pwPvsT = openFile(str);
+            writeToFile(pwPvsT, jsonPrinter.getpVsTArray().toJSONString());
+
+//            PrintWriter pw = openFile("plots/sim" + simulationHandler.getN() + ".json");
+//            writeToFile(pw, jsonPrinter.getFpArray().toJSONString());
+    }
+
+    private void iterationPrintingMap(SimulationHandler simulationHandler) {
+        PrintWriter pw = null;
 
         // Particle contour
         int xAmount = (int) (simulationHandler.getLx() / simulationHandler.getPRadius() / 2);
         int yAmount = (int) (simulationHandler.getLy() / simulationHandler.getPRadius() / 2);
-//        int ranYAmount = (int) (((simulationHandler.getLy() - simulationHandler.getRanY() / 2) / simulationHandler.getPRadius()) / 2) - 1;
+
+        // Get particle size
         int size = simulationHandler.getParticlesList().size() + xAmount * 2 + yAmount * 2 + (yAmount - 5) + 1;
         StringBuilder sb = new StringBuilder(size + "\n\n");
-        StringBuilder walls = new StringBuilder();
-
-        for (int i = 0; i < xAmount; i++) {
-            walls.append(String.format("%f %f 255\n", i * simulationHandler.getPRadius() * 2, 0.0f));
-            walls.append(String.format("%f %f 255\n", i * simulationHandler.getPRadius() * 2, simulationHandler.getLy()));
-        }
-        for (int i = 0; i < yAmount; i++) {
-            walls.append(String.format("%f %f 255\n", 0.0f, i * simulationHandler.getPRadius() * 2));
-            walls.append(String.format("%f %f 255\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
-        }
-        for (int i = 0; i < (yAmount - 3) / 2; i++) {
-            walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, i * simulationHandler.getPRadius() * 2));
-            walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, simulationHandler.getLy() - (i * simulationHandler.getPRadius() * 2)));
-        }
         sb.append(simulationHandler.printParticles());
 
-        PrintWriter pw = null;
-        simulationHandler.cellIndexMethod();
-        simulationHandler.eventSetup();
+        // Get walls
+        StringBuilder walls = drawWalls(simulationHandler, xAmount, yAmount);
+
+        // External clock setup
         int i = 0;
         int j = 0;
         double lastTime = simulationHandler.getGlobalTime();
         double step = simulationHandler.getTimeStep();
+
+        // Start simulation
         while (!simulationHandler.endCondition()) {
             if(simulationHandler.iterate()) {
                 double actualTime = simulationHandler.getGlobalTime();
@@ -76,8 +130,23 @@ public class App
                 }
             }
         }
-        pw.close();
-        System.out.println("Finished");
+    }
+
+    private static StringBuilder drawWalls(SimulationHandler simulationHandler, int xAmount, int yAmount) {
+        StringBuilder walls = new StringBuilder();
+        for (int i = 0; i < xAmount; i++) {
+            walls.append(String.format("%f %f 255\n", i * simulationHandler.getPRadius() * 2, 0.0f));
+            walls.append(String.format("%f %f 255\n", i * simulationHandler.getPRadius() * 2, simulationHandler.getLy()));
+        }
+        for (int i = 0; i < yAmount; i++) {
+            walls.append(String.format("%f %f 255\n", 0.0f, i * simulationHandler.getPRadius() * 2));
+            walls.append(String.format("%f %f 255\n", simulationHandler.getLx(), i * simulationHandler.getPRadius() * 2));
+        }
+        for (int i = 0; i < (yAmount - 3) / 2; i++) {
+            walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, i * simulationHandler.getPRadius() * 2));
+            walls.append(String.format("%f %f 255\n", simulationHandler.getLx() / 2, simulationHandler.getLy() - (i * simulationHandler.getPRadius() * 2)));
+        }
+        return walls;
     }
 
 
@@ -148,5 +217,4 @@ public class App
             System.out.println(in + " " + simulationHandler.getPVModule());
         }
     }
-
 }
