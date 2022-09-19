@@ -64,6 +64,8 @@ public class App
                             }
                         }
                     }
+                    da.addT(simulationHandler.getGlobalTime());
+
                     // Aca calculamos presion y temperatura y la agregamos al data Accumulator
                     double zeroTime = simulationHandler.getGlobalTime();
                     double actualTime = simulationHandler.getGlobalTime();
@@ -80,12 +82,19 @@ public class App
                     double perimeter = simulationHandler.getCompletePerimeter();
                     double PatIteration = simulationHandler.getTotalImpulse() / (perimeter * 10);
                     da.addP(PatIteration);
+
                 }
                 jsonPrinter.addPVsT(da.getPressureProm(), simulationHandler.getEnergy(), da.getPressureError());
+                jsonPrinter.addEqT(da.getTimeToEqProm(), simulationHandler.getEnergy(), da.getTimeToEqError());
+                int hola = 0;
             }
             String str = String.format("plots/PvsT-%d.json", simulationHandler.getN());
             PrintWriter pwPvsT = openFile(str);
             writeToFile(pwPvsT, jsonPrinter.getpVsTArray().toJSONString());
+
+            String str2 = String.format("plots/TtoEq-%d.json", simulationHandler.getN());
+            PrintWriter pwTtoEq = openFile(str2);
+            writeToFile(pwTtoEq, jsonPrinter.gettToEq().toJSONString());
 
 //            PrintWriter pw = openFile("plots/sim" + simulationHandler.getN() + ".json");
 //            writeToFile(pw, jsonPrinter.getFpArray().toJSONString());

@@ -37,17 +37,18 @@ public class DataAccumulator {
         return PList.stream().max(Comparator.naturalOrder()).get() - PList.stream().min(Comparator.naturalOrder()).get();
     }
 
-    public float getTemperatureProm() {
-        int accum = 0;
-        int count = 0;
+    public double getTimeToEqProm() {
+        double accum = 0;
+        double count = 0;
         for (Double i : TList) {
             accum += i;
             count++;
         }
-        return (float)accum / count;
+        return accum / count;
     }
 
-    public Double getTemperatureError() {
+
+    public Double getTimeToEqError() {
         return TList.stream().max(Comparator.naturalOrder()).get() - TList.stream().min(Comparator.naturalOrder()).get();
     }
 
